@@ -18,15 +18,20 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "../ui/textarea"
 import ImageUpload from "../custom ui/ImageUpload"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import toast from "react-hot-toast"
+import { Loader2 } from "lucide-react"
 
 const formSchema = z.object({
     title: z.string().min(2).max(20),
-    description:z.string().min(5).max(100).trim(),
+    description:z.string().min(5).max(500).trim(),
     image: z.string()
   })
 
 const CollectionForm = () => {
-    // 1. Define your form.
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -37,8 +42,26 @@ const CollectionForm = () => {
   })
   // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-
-    console.log(values)
+    // console.log(values);
+    // setLoading(true);
+    //return
+    try {
+        setLoading(true);
+        const res = await fetch("/api/collections",{
+          method: "POST",
+          body: JSON.stringify(values)
+        });
+        if(res.ok){
+          setLoading(false);
+          toast.success("New Collection created!");
+          router.push("/collections");
+        }
+        
+    } catch (error) {
+      console.error(`[Collection _POST]`, error);
+      toast.error("Fail to create Collection!");
+    }
+    
   }
   return (
     <div className="p-10">
@@ -91,7 +114,26 @@ const CollectionForm = () => {
                     </FormItem>
                 )}
                 />
-                <Button type="submit">Submit</Button>
+                <div className="flex gap-2 items-center">
+                <Button className="bg-blue-1 text-white" type="submit"
+                  disabled={loading ? true : false}
+                >
+                  {
+                    loading ? 
+                    (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Please wait...
+                      </>
+                    ) 
+                    : 
+                     "Submit"
+                  }
+                  
+                </Button>
+                <Button className="bg-grey-1 text-white" type="button"  onClick={() => router.push("/collections/new")}>Discard</Button>
+                </div>
+                
             </form>
         </Form>
     </div>

@@ -6,6 +6,7 @@ import "../globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import LeftSidebar from "@/components/layout/LeftSidebar";
 import Topbar from "@/components/layout/Topbar";
+import ToasterProvider from "@/lib/ToasterProvider";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -35,6 +36,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
             <div className="flex max-lg:flex-col text-grey-1">
+              <ToasterProvider />
               <LeftSidebar />
               <Topbar />
               <div className="flex-1">
